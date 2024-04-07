@@ -1,18 +1,37 @@
 import express from "express";
 import fs from "fs";
+import { fileURLToPath } from "url";
 import { format } from "date-fns";
 import path from "path";
 
-let PORT = 3000;
-let app = express();
+const PORT = 3000;
+const app = express();
 
 app.use(express.json());
+
+// Get the directory name of the current module
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", (req, res) => {
+  // Serve the homepage HTML
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 app.get("/create", (req, res) => {
   try {
     let present = format(new Date(), "dd-MM-yyyy-HH-mm-ss");
-    fs.writeFileSync(`timestamps/${present}.txt`, `${present}`, "utf8");
-    let data = fs.readFileSync(`timestamps/${present}.txt`, "utf8");
+    fs.writeFileSync(
+      path.join(__dirname, `timestamps/${present}.txt`),
+      `${present}`,
+      "utf8"
+    );
+    let data = fs.readFileSync(
+      path.join(__dirname, `timestamps/${present}.txt`),
+      "utf8"
+    );
 
     res.status(200).send(data);
   } catch (error) {
@@ -23,7 +42,7 @@ app.get("/create", (req, res) => {
 });
 
 app.get("/files", (req, res) => {
-  let filesDir = "timestamps";
+  let filesDir = path.join(__dirname, "timestamps");
   fs.readdir(filesDir, (err, files) => {
     if (err) {
       console.log(err);
