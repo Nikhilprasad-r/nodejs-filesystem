@@ -33,6 +33,8 @@ app.get("/create", (req, res) => {
       "utf8"
     );
 
+    data += `<br><a href="/">Return to Home</a>`;
+
     res.status(200).send(data);
   } catch (error) {
     console.log(error);
@@ -49,7 +51,11 @@ app.get("/files", (req, res) => {
       res.status(500).send("error");
     } else {
       const textFiles = files.filter((file) => path.extname(file) === ".txt");
-      res.status(200).json(textFiles);
+
+      let response = textFiles.join("<br>");
+      response += `<br><a href="/">Return to Home</a>`;
+
+      res.status(200).send(response);
     }
   });
 });
